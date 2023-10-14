@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proveedores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function formatRut(input) {
+            // Obtener el valor actual del campo rutempresa
+            let value = input.value;
+
+            // Eliminar cualquier carácter que no sea un dígito
+            value = value.replace(/[^\d]/g, '');
+
+            // Formatear el valor con separadores de miles
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+            // Actualizar el valor del campo rutempresa
+            input.value = value;
+        }
+
+        function validateWeb(input) {
+            let web = input.value.trim();
+
+            // Verificar si la dirección ya incluye "http://" o "https://"
+            if (!web.startsWith('http://') && !web.startsWith('https://')) {
+                // Agregar "http://" al inicio de la dirección
+                web = 'http://' + web;
+            }
+
+            input.value = web;
+        }
+    </script>
+
+
+</head>
+
+<body>
+
+    <div class="d-flex justify-content-center align-items-center" style="background-color: #f8f9fa;">
+        <div class="text-center">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    <a class="navbar-brand" href="#">La Florida Emprende</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <span class="nav-link">Usuario: {{ current_user.fullname }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('revisionsolicitudes') }}"
+                                    title="Solicitudes de Emprendedores pendientes">
+                                    Notificaciones
+                                    {% if tiene_registros_sin_proveedor %}
+                                    <span class="badge bg-danger">! {{ tiene_registros_sin_proveedor }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+
+
+    <h1 class="text-center mt-5 mb-5 text-primary">Proveedores App</h1>
+    <p class="text-center">En esta seccion, revisaras los emprendedores que estan en la Base de Datos del Portal</p>
+
+    <div class="text-center mt-4" style="margin-bottom: 20px;">
+        <button class="btn btn-primary me-2" id="btn-agregar" data-bs-toggle="modal"
+            data-bs-target="#modalAgregarProveedor">Agregar Proveedor</button>
+
+        <!-- <a class="btn btn-danger me-2" href="{{ url_for('logout') }}">Cerrar Sesión</a> -->
+        <a class="btn btn-secondary" href="{{ url_for('home') }}">Administrar Usuarios</a>
+        <a class="btn btn-secondary" href="{{ url_for('revisionsolicitudes') }}">Revision Solicitudes</a>
+    </div>
+
+    <div class="modal fade" id="modalAgregarProveedor" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar Proveedor</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/proveedor" method="POST" enctype="multipart/form-data">
+                        <label>Nombre y Apellidos Contacto</label>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control mb-3" name="nombre">
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control mb-3" name="apellido">
+                            </div>
+                        </div>
+                        <label>RUT Empresa</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="rutempresa" id="rutempresa"
+                                oninput="formatRut(this)">
+                            <span class="input-group-text">-</span>
+                            <input type="text" class="form-control" name="dv">
+                        </div>
+                        <label>Razón Social</label>
+                        <input type="text" class="form-control mb-3" name="razonsocial">
+                        <label>Nombre Comercial</label>
+                        <input type="text" class="form-control mb-3" name="nombrecomercial">
+                        <label>Rubro</label>
+                        <select class="form-control mb-3" id="rubro" name="rubro">
+                            <option value="alimentos-bebidas">Alimentos y bebidas</option>
+                            <option value="artesania-manualidades">Artesanía y manualidades</option>
+                            <option value="asesoria">Asesoría</option>
+                            <option value="belleza-cuidado-personal">Belleza y cuidado personal</option>
+                            <option value="bienes-raices">Bienes raíces</option>
+                            <option value="cobranza">Cobranza</option>
+                            <option value="construccion-obras-menores">Construcción y obras menores</option>
+                            <option value="decoracion">Decoración</option>
+                            <option value="deporte-fitness">Deporte y fitness</option>
+                            <option value="diseno-grafico">Diseño gráfico</option>
+                            <option value="electricidad">Electricidad</option>
+                            <option value="entretencion-eventos">Entretención y Eventos</option>
+                            <option value="jardineria-flores">Jardinería y flores</option>
+                            <option value="juguetes-juegos">Juguetes y juegos</option>
+                            <option value="libros-musica">Libros y música</option>
+                            <option value="limpieza">Limpieza</option>
+                            <option value="mascotas">Mascotas</option>
+                            <option value="mecanica">Mecánica</option>
+                            <option value="reparacion-mantencion">Reparación y mantención</option>
+                            <option value="restaurantes">Restaurantes</option>
+                            <option value="ropa-accesorios">Ropa y accesorios</option>
+                            <option value="salud-bienestar">Salud y Bienestar</option>
+                            <option value="servicios-carpinteria">Servicios de Carpintería</option>
+                            <option value="servicios-gasfiteria">Servicios de Gasfitería</option>
+                            <option value="tecnologia">Tecnología</option>
+                            <option value="telecomunicaciones">Telecomunicaciones</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="viajes-turismo">Viajes y turismo</option>
+                            <option value="vigilancia-seguridad">Vigilancia y seguridad</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <label>Descripción</label>
+                        <input type="text" class="form-control mb-3" name="descripcion">
+                        <label>Instagram</label>
+                        <input type="text" class="form-control mb-3" name="Instagram">
+                        <label>Facebook</label>
+                        <input type="text" class="form-control mb-3" name="Facebook">
+                        <label>WhatsApp</label>
+                        <input type="text" class="form-control mb-3" name="Whatsapp">
+                        <label>Página Web</label>
+                        <input type="url" class="form-control mb-3" name="web" onblur="validateWeb(this)">
+                        <label>Logo</label>
+                        <input type="file" class="form-control mb-3" name="logo" accept=".jpg">
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Tabla -->
+    <div style="margin: 20px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Razon Social</th>
+                    <th scope="col">Rut Empresa</th>
+                    <th scope="col">Rubro</th>
+                    <th scope="col">Descripcion</th>
+                    <th scope="col">Whatsapp</th>
+                    <th scope="col">Pagina Web</th>
+                    <th scope="col">Editar</th>
+                    <th scope="col">Borrar</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for d in data %}
+                <tr>
+                    <td>{{d.razonsocial}}</td>
+                    <td>{{ d.rutempresa }} - {{ d.dv }}</td>
+                    <td>{{d.rubro}}</td>
+                    <td>{{d.descripcion}}</td>
+                    <td>{{d.whatsapp}}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="openNewWindow('{{d.web}}')">Sitio
+                            Web</button>
+                    </td>
+                    <td><button class="btn btn-primary btn-sm" id="btn-edit{{ d.proveedor_id }}" data-bs-toggle="modal"
+                            data-bs-target="#modal{{ d.proveedor_id }}">Editar</button></td>
+                    <td>
+                        <a href="{{ url_for('deletep', proveedor_id=d.proveedor_id, id=d.id) }}"
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?');"
+                            class="btn btn-danger btn-sm" id="delete-button">Borrar</a>
+                    </td>
+                </tr>
+
+                <!-- modal -->
+
+                <div class="modal fade" id="modal{{ d.proveedor_id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">{{ d.razonsocial }}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/editp//{{ d.proveedor_id }}" method="POST" enctype="multipart/form-data">
+                                    <label>Nombre y Apellidos Contacto</label>
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control mb-3" name="nombre"
+                                                value="{{ d.nombre }}">
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control mb-3" name="apellido"
+                                                value="{{ d.apellido }}">
+                                        </div>
+                                    </div>
+                                    <label>RUT Empresa</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" name="rutempresa"
+                                            value="{{ d.rutempresa }}">
+                                        <span class="input-group-text">-</span>
+                                        <input type="text" class="form-control" name="dv" value="{{ d.dv }}">
+                                    </div>
+                                    <label>Razón Social</label>
+                                    <input type="text" class="form-control mb-3" name="razonsocial"
+                                        value="{{ d.razonsocial }}">
+                                    <label>Nombre Comercial</label>
+                                    <input type="text" class="form-control mb-3" name="nombrecomercial"
+                                        value="{{ d.nombrecomercial }}">
+                                    <label>Rubro</label>
+                                    <select class="form-control mb-3" id="rubro" name="rubro">
+                                        <option value="alimentos-bebidas" {% if d.rubro=='alimentos-bebidas'
+                                            %}selected{% endif %}>Alimentos y bebidas</option>
+                                        <option value="artesania-manualidades" {% if d.rubro=='artesania-manualidades'
+                                            %}selected{% endif %}>Artesanía y manualidades</option>
+                                        <option value="asesoria" {% if d.rubro=='asesoria' %}selected{% endif %}>
+                                            Asesoría
+                                        </option>
+                                        <option value="belleza-cuidado-personal" {% if
+                                            d.rubro=='belleza-cuidado-personal' %}selected{% endif %}>Belleza y cuidado
+                                            personal</option>
+                                        <option value="bienes-raices" {% if d.rubro=='bienes-raices' %}selected{% endif
+                                            %}>
+                                            Bienes raíces</option>
+                                        <option value="cobranza" {% if d.rubro=='cobranza' %}selected{% endif %}>
+                                            Cobranza
+                                        </option>
+                                        <option value="construccion-obras-menores" {% if
+                                            d.rubro=='construccion-obras-menores' %}selected{% endif %}>Construcción y
+                                            obras
+                                            menores</option>
+                                        <option value="decoracion" {% if d.rubro=='decoracion' %}selected{% endif %}>
+                                            Decoración</option>
+                                        <option value="deporte-fitness" {% if d.rubro=='deporte-fitness' %}selected{%
+                                            endif %}>Deporte y fitness</option>
+                                        <option value="diseno-grafico" {% if d.rubro=='diseno-grafico' %}selected{%
+                                            endif %}>Diseño gráfico</option>
+                                        <option value="electricidad" {% if d.rubro=='electricidad' %}selected{% endif
+                                            %}>
+                                            Electricidad</option>
+                                        <option value="entretencion-eventos" {% if d.rubro=='entretencion-eventos'
+                                            %}selected{% endif %}>Entretención y Eventos</option>
+                                        <option value="jardineria-flores" {% if d.rubro=='jardineria-flores'
+                                            %}selected{% endif %}>Jardinería y flores</option>
+                                        <option value="juguetes-juegos" {% if d.rubro=='juguetes-juegos' %}selected{%
+                                            endif %}>Juguetes y juegos</option>
+                                        <option value="libros-musica" {% if d.rubro=='libros-musica' %}selected{% endif
+                                            %}>
+                                            Libros y música</option>
+                                        <option value="limpieza" {% if d.rubro=='limpieza' %}selected{% endif %}>
+                                            Limpieza
+                                        </option>
+                                        <option value="mascotas" {% if d.rubro=='mascotas' %}selected{% endif %}>
+                                            Mascotas
+                                        </option>
+                                        <option value="mecanica" {% if d.rubro=='mecanica' %}selected{% endif %}>
+                                            Mecánica
+                                        </option>
+                                        <option value="reparacion-mantencion" {% if d.rubro=='reparacion-mantencion'
+                                            %}selected{% endif %}>Reparación y mantención</option>
+                                        <option value="restaurantes" {% if d.rubro=='restaurantes' %}selected{% endif
+                                            %}>
+                                            Restaurantes</option>
+                                        <option value="ropa-accesorios" {% if d.rubro=='ropa-accesorios' %}selected{%
+                                            endif %}>Ropa y accesorios</option>
+                                        <option value="salud-bienestar" {% if d.rubro=='salud-bienestar' %}selected{%
+                                            endif %}>Salud y Bienestar</option>
+                                        <option value="servicios-carpinteria" {% if d.rubro=='servicios-carpinteria'
+                                            %}selected{% endif %}>Servicios de Carpintería</option>
+                                        <option value="servicios-gasfiteria" {% if d.rubro=='servicios-gasfiteria'
+                                            %}selected{% endif %}>Servicios de Gasfitería</option>
+                                        <option value="tecnologia" {% if d.rubro=='tecnologia' %}selected{% endif %}>
+                                            Tecnología</option>
+                                        <option value="telecomunicaciones" {% if d.rubro=='telecomunicaciones'
+                                            %}selected{% endif %}>Telecomunicaciones</option>
+                                        <option value="transporte" {% if d.rubro=='transporte' %}selected{% endif %}>
+                                            Transporte</option>
+                                        <option value="viajes-turismo" {% if d.rubro=='viajes-turismo' %}selected{%
+                                            endif %}>Viajes y turismo</option>
+                                        <option value="vigilancia-seguridad" {% if d.rubro=='vigilancia-seguridad'
+                                            %}selected{% endif %}>Vigilancia y seguridad</option>
+                                        <option value="otro" {% if d.rubro=='otro' %}selected{% endif %}>Otro</option>
+                                    </select>
+                                    <label>Descripción</label>
+                                    <input type="text" class="form-control mb-3" name="descripcion"
+                                        value="{{ d.descripcion }}">
+                                    <div>
+                                        {% if d.logo %}
+                                        <div>
+                                            <p>Logo Enviado</p>
+                                            <img src="{{ url_for('static', filename='public/' + d.logo) }}"
+                                                alt="Logo Actual" style="max-width: 200px; max-height: 200px;">
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <input type="file" class="form-control" name="logo" accept=".jpg">
+                                    </div>
+                                    <label>Instagram</label>
+                                    <input type="text" class="form-control mb-3" name="Instagram"
+                                        value="{{ d.instagram }}">
+                                    <label>Facebook</label>
+                                    <input type="text" class="form-control mb-3" name="Facebook"
+                                        value="{{ d.facebook }}">
+                                    <label>WhatsApp</label>
+                                    <input type="text" class="form-control mb-3" name="Whatsapp"
+                                        value="{{ d.whatsapp }}">
+                                    <label>Página Web</label>
+                                    <input type="text" class="form-control mb-3" name="web" value="{{ d.web }}">
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary" name="submit">Guardar
+                                            Cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</body>
+
+<script>
+    function openNewWindow(url) {
+        window.open(url, '_blank');
+    }
+</script>
+
+</html>

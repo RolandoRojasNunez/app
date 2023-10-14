@@ -1,0 +1,113 @@
+{% extends 'public/index.html' %}
+
+{% block body %}
+<div id="resultado" class="text-center">
+    <h4 class="text-center" style="color: white;">Resultado
+        <hr>
+    </h4>
+    <style>
+        body {
+            background-attachment: fixed;
+            /* Fija la imagen de fondo */
+        }
+
+        .content-block {
+            width: 60%;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+
+    {% if miData %}
+    {% for resultado in miData %}
+    <section class="card rounded content-block" style="width: 60%; margin: 0 auto;">
+        <div class="card-body">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-md-4">
+                    <p>
+                        <i class="fas fa-user"></i> Nombre: <strong>{{ resultado.razonsocial }}</strong>
+                    </p>
+                    <p>
+                        <i class="fas fa-briefcase"></i> Giro: <strong>{{ resultado.rubro }}</strong>
+                    </p>
+                    <p>
+                        <i class="fas fa-info-circle"></i> Descripción: <strong>{{ resultado.descripcion }}</strong>
+                    </p>
+                    <p>
+                        <i class="fas fa-globe"></i> Página Web:
+                        <strong>
+                            <a href="#" onclick="abrirVentana('{{ resultado.web }}');">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </strong>
+                    </p>
+                    <p>
+                        <i class="fab fa-whatsapp"></i> Whatsapp:
+                        <strong>
+                            <a href="https://web.whatsapp.com/send?phone={{ resultado.whatsapp }}&text=Vi%20tus%20datos%20en%20el%20centro%20de%20negocios..."
+                                target="_blank">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </strong>
+                    </p>
+                    <p>
+                        <i class="fab fa-facebook"></i> Facebook:
+                        <strong>
+                            <a href="{{ resultado.facebook }}" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                        </strong>
+                    </p>
+                    <p>
+                        <i class="fab fa-instagram"></i> Instagram:
+                        <strong>
+                            <a href="{{ resultado.instagram }}" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </strong>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p>
+                        {% if resultado.logo %}
+                        <a href="{{ resultado.web }}" target="_blank">
+                            <img src="{{ url_for('static', filename='public/' + resultado.logo) }}" alt="Logo"
+                                width="200px" height="200px" style="object-fit: contain;" onload="imagenCargada(this)">
+                        </a>
+                        {% else %}
+                        No se ha proporcionado un logo.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p style="color: white;">No hay resultados para la búsqueda:
+        <strong class="busq colorCrimson" style="color: white;">{{ busqueda }}</strong>
+    </p>
+    {% endif %}
+</div>
+
+<script>
+    function abrirVentana(url) {
+        window.open(url);
+    }
+
+    function imagenCargada(img) {
+        if (!img.complete || typeof img.naturalWidth === "undefined" || img.naturalWidth === 0) {
+            img.onerror = function () {
+                mostrarErrorLogo(img);
+            };
+        }
+    }
+
+    function mostrarErrorLogo(img) {
+        var parentDiv = img.parentNode;
+        var mensajeError = document.createElement('p');
+        mensajeError.textContent = "No se pudo cargar el logo.";
+        parentDiv.appendChild(mensajeError);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revision de Solicitudes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+    <style>
+        #message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e2f2ff;
+            padding: 10px;
+            border: 1px solid #a6c7ff;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        function formatRut(input) {
+            // Formatear el RUT
+            let value = input.value.replace(/\./g, '');
+            value = value.replace(/-/g, '');
+
+            if (value.length > 1) {
+                value = value.slice(0, -1) + '-' + value.slice(-1);
+            }
+
+            input.value = value;
+        }
+
+        function validateRut(input) {
+            // Validar el RUT
+            let rut = input.value.replace(/\./g, '');
+            rut = rut.replace(/-/g, '');
+
+            let rutDigits = rut.slice(0, -1);
+            let verificationDigit = rut.slice(-1).toUpperCase();
+
+            let rutFormatted = rutDigits + '-' + verificationDigit;
+
+            if (/^[0-9]+-[0-9kK]{1}$/.test(rutFormatted)) {
+                input.setCustomValidity('');
+            } else {
+                input.setCustomValidity('RUT inválido');
+            }
+        }
+
+        function validateWeb(input) {
+            let web = input.value.trim();
+
+            // Verificar si la dirección ya incluye "http://" o "https://"
+            if (!web.startsWith('http://') && !web.startsWith('https://')) {
+                // Agregar "http://" al inicio de la dirección
+                web = 'http://' + web;
+            }
+
+            input.value = web;
+        }
+
+
+        function openNewWindow(url) {
+            window.open(url, '_blank');
+        }
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="d-flex justify-content-center align-items-center" style="background-color: #f8f9fa;">
+        <div class="text-center">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    <a class="navbar-brand" href="#">La Florida Emprende</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <span class="nav-link">Usuario: {{ current_user.fullname }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('revisionsolicitudes') }}"
+                                    title="Solicitudes de Emprendedores pendientes">
+                                    Notificaciones
+                                    {% if tiene_registros_sin_proveedor %}
+                                    <span class="badge bg-danger">! {{ tiene_registros_sin_proveedor }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <h1 class="text-center mt-5 mb-5 text-primary">Revision de Solicitudes</h1>
+    <p class="text-center">En esta seccion, revisaras las solicitudes enviadas por los emprendedores, que no estan en la
+        Base de Datos del Portal</p>
+
+    <div class="text-center mt-4" style="margin-bottom: 20px;">
+        <!-- <a class="btn btn-danger me-2" href="{{ url_for('logout') }}">Cerrar Sesión</a> -->
+        <a class="btn btn-secondary" href="{{ url_for('home') }}">Administrar Usuarios</a>
+        <a class="btn btn-secondary" href="{{ url_for('homep') }}">Administrar Proveedores</a>
+    </div>
+
+    <!-- Tabla -->
+    <div style="margin: 20px;">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Ingresar al portal</th>
+                    <th scope="col" class="text-center">Registrado en Portal</th>
+                    <th scope="col">Razon Social</th>
+                    <th scope="col">Rut Empresa</th>
+                    <th scope="col">Whatsapp</th>
+                    <th scope="col">Pagina Web</th>
+                    <th scope="col">Revisar</th>
+                    <th scope="col">Borrar</th>
+                </tr>
+            </thead>
+
+
+
+            <tbody>
+                {% for d in data %}
+                <tr>
+                    <td class="text-center">
+                        <input type="checkbox" name="ingresar_portal" value="{{ d.proveedorregistro_id }}" {% if
+                            d.registrado %} disabled {% endif %}>
+                    </td>
+                    <td class="text-center align-middle">
+                        {% if d.registrado %}
+                        <p>Emprendedor Registrado</p>
+                        {% else %}
+                        <p>No</p>
+                        {% endif %}
+                    </td>
+                    <td>{{ d.razonsocial }}</td>
+                    <td>{{ d.rutempresa }} - {{ d.dv }}</td>
+                    <td>{{ d.whatsappr }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="openNewWindow('{{ d.webr }}')">Sitio
+                            Web</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" id="btn-edit{{ d.id }}" data-bs-toggle="modal"
+                            data-bs-target="#modal{{ d.proveedorregistro_id }}">Revisar</button>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('deleter', proveedorregistro_id=d.proveedorregistro_id, id=d.id) }}"
+                            onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?');"
+                            class="btn btn-danger btn-sm">Borrar</a>
+                    </td>
+                </tr>
+
+                <!-- modal -->
+
+                <div class="modal fade" id="modal{{ d.proveedorregistro_id }}" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">{{ d.razonsocialregistro }}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/editr/{{ d.proveedorregistro_id }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <label>Nombre y Apellidos Contacto</label>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" class="form-control mb-3" name="nombreregistro"
+                                                value="{{ d.nombrer }}">
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control mb-3" name="apellidosregistro"
+                                                value="{{ d.apellidor }}">
+                                        </div>
+                                    </div>
+                                    <label>RUT Empresa</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" name="rutempresaregistro"
+                                            value="{{ d.rutempresa }}">
+                                        <span class="input-group-text">-</span>
+                                        <input type="text" class="form-control" name="dvregistro" value="{{ d.dv }}">
+                                    </div>
+                                    <label>Razon Social</label>
+                                    <input type="text" class="form-control mb-3" name="razonsocialregistro"
+                                        value="{{ d.razonsocial }}">
+                                    <label>Nombre Comercial</label>
+                                    <input type="text" class="form-control mb-3" name="nombrecomercialregistro"
+                                        value="{{ d.nombrecomercial }}">
+                                    <label>Rubro</label>
+                                    <select class="form-control mb-3" id="rubro" name="rubroregistro">
+                                        <option value="alimentos-bebidas" {% if d.rubro=='alimentos-bebidas'
+                                            %}selected{% endif %}>Alimentos y bebidas</option>
+                                        <option value="artesania-manualidades" {% if d.rubro=='artesania-manualidades'
+                                            %}selected{% endif %}>Artesanía y manualidades</option>
+                                        <option value="asesoria" {% if d.rubro=='asesoria' %}selected{% endif %}>
+                                            Asesoría
+                                        </option>
+                                        <option value="belleza-cuidado-personal" {% if
+                                            d.rubro=='belleza-cuidado-personal' %}selected{% endif %}>Belleza y cuidado
+                                            personal</option>
+                                        <option value="bienes-raices" {% if d.rubro=='bienes-raices' %}selected{% endif
+                                            %}>
+                                            Bienes raíces</option>
+                                        <option value="cobranza" {% if d.rubro=='cobranza' %}selected{% endif %}>
+                                            Cobranza
+                                        </option>
+                                        <option value="construccion-obras-menores" {% if
+                                            d.rubro=='construccion-obras-menores' %}selected{% endif %}>Construcción y
+                                            obras
+                                            menores</option>
+                                        <option value="decoracion" {% if d.rubro=='decoracion' %}selected{% endif %}>
+                                            Decoración</option>
+                                        <option value="deporte-fitness" {% if d.rubro=='deporte-fitness' %}selected{%
+                                            endif %}>Deporte y fitness</option>
+                                        <option value="diseno-grafico" {% if d.rubro=='diseno-grafico' %}selected{%
+                                            endif %}>Diseño gráfico</option>
+                                        <option value="electricidad" {% if d.rubro=='electricidad' %}selected{% endif
+                                            %}>
+                                            Electricidad</option>
+                                        <option value="entretencion-eventos" {% if d.rubro=='entretencion-eventos'
+                                            %}selected{% endif %}>Entretención y Eventos</option>
+                                        <option value="jardineria-flores" {% if d.rubro=='jardineria-flores'
+                                            %}selected{% endif %}>Jardinería y flores</option>
+                                        <option value="juguetes-juegos" {% if d.rubro=='juguetes-juegos' %}selected{%
+                                            endif %}>Juguetes y juegos</option>
+                                        <option value="libros-musica" {% if d.rubro=='libros-musica' %}selected{% endif
+                                            %}>
+                                            Libros y música</option>
+                                        <option value="limpieza" {% if d.rubro=='limpieza' %}selected{% endif %}>
+                                            Limpieza
+                                        </option>
+                                        <option value="mascotas" {% if d.rubro=='mascotas' %}selected{% endif %}>
+                                            Mascotas
+                                        </option>
+                                        <option value="mecanica" {% if d.rubro=='mecanica' %}selected{% endif %}>
+                                            Mecánica
+                                        </option>
+                                        <option value="reparacion-mantencion" {% if d.rubro=='reparacion-mantencion'
+                                            %}selected{% endif %}>Reparación y mantención</option>
+                                        <option value="restaurantes" {% if d.rubro=='restaurantes' %}selected{% endif
+                                            %}>
+                                            Restaurantes</option>
+                                        <option value="ropa-accesorios" {% if d.rubro=='ropa-accesorios' %}selected{%
+                                            endif %}>Ropa y accesorios</option>
+                                        <option value="salud-bienestar" {% if d.rubro=='salud-bienestar' %}selected{%
+                                            endif %}>Salud y Bienestar</option>
+                                        <option value="servicios-carpinteria" {% if d.rubro=='servicios-carpinteria'
+                                            %}selected{% endif %}>Servicios de Carpintería</option>
+                                        <option value="servicios-gasfiteria" {% if d.rubro=='servicios-gasfiteria'
+                                            %}selected{% endif %}>Servicios de Gasfitería</option>
+                                        <option value="tecnologia" {% if d.rubro=='tecnologia' %}selected{% endif %}>
+                                            Tecnología</option>
+                                        <option value="telecomunicaciones" {% if d.rubro=='telecomunicaciones'
+                                            %}selected{% endif %}>Telecomunicaciones</option>
+                                        <option value="transporte" {% if d.rubro=='transporte' %}selected{% endif %}>
+                                            Transporte</option>
+                                        <option value="viajes-turismo" {% if d.rubro=='viajes-turismo' %}selected{%
+                                            endif %}>Viajes y turismo</option>
+                                        <option value="vigilancia-seguridad" {% if d.rubro=='vigilancia-seguridad'
+                                            %}selected{% endif %}>Vigilancia y seguridad</option>
+                                        <option value="otro" {% if d.rubro=='otro' %}selected{% endif %}>Otro</option>
+                                    </select>
+                                    <label>Descripcion</label>
+                                    <input type="text" class="form-control mb-3" name="descripcionregistro"
+                                        value="{{ d.descripcion }}">
+
+                                    <!--  Display uploaded logo -->
+                                    <div>
+                                        {% if d.logo %}
+                                        <div>
+                                            <p>Logo Enviado</p>
+                                            <img src="{{ url_for('static', filename='registro/' + d.logo) }}"
+                                                alt="Logo Actual" style="max-width: 200px; max-height: 200px;">
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <input type="file" class="form-control" name="logo" accept=".jpg">
+                                    </div>
+
+                                    <!-- End of new code -->
+
+                                    <label>Instagram</label>
+                                    <input type="text" class="form-control mb-3" name="Instagramregistro"
+                                        value="{{ d.instagramr }}">
+                                    <label>Facebook</label>
+                                    <input type="text" class="form-control mb-3" name="Facebookregistro"
+                                        value="{{ d.facebookr }}">
+                                    <label>Whatsapp</label>
+                                    <input type="text" class="form-control mb-3" name="Whatsappregistro"
+                                        value="{{ d.whatsappr }}">
+                                    <label>Página Web</label>
+                                    <input type="text" class="form-control mb-3" name="webregistro"
+                                        value="{{ d.webr }}">
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary" name="submit">Guardar
+                                            Cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+    <div class="text-center mt-4">
+        <button class="btn btn-primary" onclick="agregarAlPortal()">Agregar al portal</button>
+    </div>
+
+    <script>
+        function agregarAlPortal() {
+            var checkboxes = document.querySelectorAll('input[name="ingresar_portal"]:checked');
+            var ids = Array.from(checkboxes).map(function (checkbox) {
+                return checkbox.value;
+            });
+
+            if (ids.length === 0) {
+                showMessage('No se han seleccionado solicitudes para agregar al portal.', 'error');
+                return;
+            }
+
+            var json = {};
+            ids.forEach((value, index) => json[index] = value);
+            console.log(json);
+            fetch('/migrate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 'id': idArray })  // Corrección: Utilizar json en lugar de idArray
+            })
+                .then(response => {
+                    console.log(response)
+                    if (response.ok) {
+                        showMessage('Solicitud procesada exitosamente', 'success');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000); // 2000 milisegundos = 2 segundos
+                        return response.json();
+                    } else {
+                        throw new Error('Error en la solicitud');
+                    }
+                })
+                .catch(error => {
+                    showMessage('Ha ocurrido un error', 'error');
+                    console.error(error);
+                });
+        }
+
+
+
+        let idArray = []; // Declara la variable idArray fuera de la función con let
+
+        $(document).ready(function () {
+            // Agrega un evento de clic al checkbox
+            $('input[name="ingresar_portal"]').on('click', function () {
+                // Obtén el ID del checkbox que se hizo clic
+                let id = $(this).val();
+
+                // Verifica si el checkbox está marcado
+                if ($(this).is(':checked')) {
+                    // Agrega el ID al array
+                    idArray.push(id);
+                } else {
+                    // Elimina el ID del array si el checkbox se desmarca
+                    let index = idArray.indexOf(id);
+                    if (index !== -1) {
+                        idArray.splice(index, 1);
+                    }
+                }
+            });
+        });
+
+        function showMessage(message, type) {
+            var alertBox = document.createElement('div');
+            alertBox.className = 'alert-' + type;
+            alertBox.innerHTML = message;
+            alertBox.style.position = 'fixed';
+            alertBox.style.top = '50%';
+            alertBox.style.left = '50%';
+            alertBox.style.transform = 'translate(-50%, -50%)';
+            alertBox.style.backgroundColor = '#ffffff';
+            alertBox.style.border = '1px solid #000000';
+            alertBox.style.padding = '10px';
+            alertBox.style.borderRadius = '5px';
+            alertBox.style.zIndex = '9999';
+            document.body.appendChild(alertBox);
+
+            setTimeout(function () {
+                alertBox.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/flask.svg') }}">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .menuop {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d-flex justify-content-center align-items-center" style="background-color: #f8f9fa;">
+        <div class="text-center">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    <a class="navbar-brand" href="#">La Florida Emprende</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <span class="nav-link">Usuario: {{ current_user.fullname }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('revisionsolicitudes') }}"
+                                    title="Solicitudes de Emprendedores pendientes">
+                                    Notificaciones
+                                    {% if tiene_registros_sin_proveedor %}
+                                    <span class="badge bg-danger">! {{ tiene_registros_sin_proveedor }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #f8f9fa;">
+        <div class="text-center">
+            <h1>Bienvenido, {{ current_user.fullname }}</h1>
+            <div class="menuop">
+                <div class="item-0">
+                    <!-- <a class="btn btn-danger me-2" href="{{ url_for('logout') }}">Cerrar Sesión</a> -->
+                </div>
+                <div class="item-1">
+                    <a class="btn btn-secondary" href="{{ url_for('home') }}">Administrar Usuarios</a>
+                </div>
+                <div class="item-2">
+                    <a class="btn btn-secondary" href="{{ url_for('homep') }}">Administrar Proveedores</a>
+                </div>
+                <div class="item-3">
+                    <a class="btn btn-secondary" href="{{ url_for('revisionsolicitudes') }}">Revision Solicitudes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Proveedores App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+    <style>
+        /* Estilos personalizados para los mensajes flash */
+        .flash-messages {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            text-align: center;
+        }
+
+        .flash-message {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        function validateWebr(input) {
+            let webregistro = input.value.trim();
+
+            // Verificar si la dirección ya incluye "http://" o "https://"
+            if (!webregistro.startsWith('http://') && !webregistro.startsWith('https://')) {
+                // Agregar "http://" al inicio de la dirección
+                webregistro = 'https://' + webregistro;
+            }
+
+            input.value = webregistro;
+        }
+
+        function validarFormulario() {
+            var nombre = document.getElementsByName('nombreregistro')[0].value;
+            var apellido = document.getElementsByName('apellidoregistro')[0].value;
+            var rut = document.getElementsByName('rutempresaregistro')[0].value;
+            var dv = document.getElementsByName('dvregistro')[0].value;
+            var razonSocial = document.getElementsByName('razonsocialregistro')[0].value;
+            var nombreComercial = document.getElementsByName('nombrecomercialregistro')[0].value;
+            var rubro = document.getElementsByName('rubroregistro')[0].value;
+            var descripcion = document.getElementsByName('descripcionregistro')[0].value;
+            var logo = document.getElementsByName('logoregistro')[0].value;
+            var instagram = document.getElementsByName('Instagramregistro')[0].value;
+            var facebook = document.getElementsByName('Facebookregistro')[0].value;
+            var whatsapp = document.getElementsByName('Whatsappregistro')[0].value;
+            var web = document.getElementsByName('webregistro')[0].value;
+
+            // Verificar si algún campo está vacío
+            if (
+                nombre.trim() === '' ||
+                apellido.trim() === '' ||
+                rut.trim() === '' ||
+                dv.trim() === '' ||
+                razonSocial.trim() === '' ||
+                nombreComercial.trim() === '' ||
+                rubro.trim() === '' ||
+                descripcion.trim() === '' ||
+                logo.trim() === '' ||
+                instagram.trim() === '' ||
+                facebook.trim() === '' ||
+                whatsapp.trim() === '' ||
+                web.trim() === ''
+            ) {
+                alert('Por favor, complete todos los campos del formulario.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function guardarFormulario() {
+            if (validarFormulario()) {
+                document.querySelector('form').submit();
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+    <h1 class="text-center mt-5 mb-5 text-primary">Emprendedores La Florida</h1>
+
+    <h2 class="text-center mt-5 mb-5 text-secundary">Formulario Inscripción Catálogo Proveedores Centros de Negocios
+        Sercotec</h2>
+
+    <div style="max-width: 60%; margin: 0 auto;">
+        <p>Estimado empresario, bienvenido al catálogo de clientes de Centros de Negocios Sercotec. Para poder ser parte
+            de
+            este canal de promoción debe completar este formulario con toda la información solicitada. Por favor
+            considerar
+            que la información que usted registre acá será la que podrán visualizar sus potenciales clientes, por lo
+            tanto,
+            es muy importante que se asegure que sea clara y correcta. <br>
+            Además, es importante que usted esté en conocimiento de que al completar esta información usted acepta ser
+            parte
+            de este catálogo y sus condiciones de operación. Una vez se haya inscrito, su asesor del Centro de Negocios
+            confirmará su inclusión.</p>
+    </div>
+
+
+    <div class="text-center mt-4" style="margin-bottom: 20px;">
+        <button class="btn btn-primary me-2" id="btn-agregar" data-bs-toggle="modal"
+            data-bs-target="#modalAgregarEmprendedor">Agregar Emprendedor</button>
+
+        <div class="modal fade" id="modalAgregarEmprendedor" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar Emprendedor</h1>
+                        <button type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/registro" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label>Nombre y Apellidos Contacto</label>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" class="form-control mb-3" name="nombreregistro">
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control mb-3" name="apellidoregistro">
+                                </div>
+                            </div>
+                            <label>RUT Empresa</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="rutempresaregistro">
+                                <span class="input-group-text">-</span>
+                                <input type="text" class="form-control" name="dvregistro">
+                            </div>
+                            <label>Razon Social</label>
+                            <input type="text" class="form-control mb-3" name="razonsocialregistro">
+                            <label>Nombre Comercial</label>
+                            <input type="text" class="form-control mb-3" name="nombrecomercialregistro"
+                                placeholder="¿Con que nombre se conoce su emprendimiento?">
+                            <label>Rubro</label>
+                            <select class="form-control mb-3" id="rubro" name="rubroregistro">
+                                <option value="alimentos-bebidas">Alimentos y bebidas</option>
+                                <option value="artesania-manualidades">Artesanía y manualidades</option>
+                                <option value="asesoria">Asesoría</option>
+                                <option value="belleza-cuidado-personal">Belleza y cuidado personal</option>
+                                <option value="bienes-raices">Bienes raíces</option>
+                                <option value="cobranza">Cobranza</option>
+                                <option value="construccion-obras-menores">Construcción y obras menores</option>
+                                <option value="decoracion">Decoración</option>
+                                <option value="deporte-fitness">Deporte y fitness</option>
+                                <option value="diseno-grafico">Diseño gráfico</option>
+                                <option value="electricidad">Electricidad</option>
+                                <option value="entretencion-eventos">Entretención y Eventos</option>
+                                <option value="jardineria-flores">Jardinería y flores</option>
+                                <option value="juguetes-juegos">Juguetes y juegos</option>
+                                <option value="libros-musica">Libros y música</option>
+                                <option value="limpieza">Limpieza</option>
+                                <option value="mascotas">Mascotas</option>
+                                <option value="mecanica">Mecánica</option>
+                                <option value="reparacion-mantencion">Reparación y mantención</option>
+                                <option value="restaurantes">Restaurantes</option>
+                                <option value="ropa-accesorios">Ropa y accesorios</option>
+                                <option value="salud-bienestar">Salud y Bienestar</option>
+                                <option value="servicios-carpinteria">Servicios de Carpintería</option>
+                                <option value="servicios-gasfiteria">Servicios de Gasfitería</option>
+                                <option value="tecnologia">Tecnología</option>
+                                <option value="telecomunicaciones">Telecomunicaciones</option>
+                                <option value="transporte">Transporte</option>
+                                <option value="viajes-turismo">Viajes y turismo</option>
+                                <option value="vigilancia-seguridad">Vigilancia y seguridad</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <label>Descripción</label>
+                            <input type="text" class="form-control mb-3" name="descripcionregistro"
+                                placeholder="Describa su producto o servicio">
+                            <input type="file" class="form-control mb-3" name="logoregistro" id="logoregistro"
+                                accept=".jpg">
+                            <label>Instagram</label>
+                            <input type="text" class="form-control mb-3" name="Instagramregistro"
+                                placeholder="Debe ingresar el Usuario de Instagram">
+                            <label>Facebook</label>
+                            <input type="text" class="form-control mb-3" name="Facebookregistro"
+                                placeholder="Debe ingresar el Usuario de Facebook">
+                            <label>WhatsApp</label>
+                            <input type="text" class="form-control mb-3" name="Whatsappregistro"
+                                placeholder="Ingrese su número de WhatsApp (9 dígitos)" maxlength="9">
+                            <label>Página Web</label>
+                            <input type="url" class="form-control mb-3" name="webregistro"
+                                placeholder="Debe ingresar la URL de su pagina web" onblur="validateWebr(this)">
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary"
+                                    onclick="guardarFormulario()">Guardar</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-4" style="margin-bottom: 20px;">
+        <a href="https://www.sercotec.cl/centros-de-negocios/centro-de-desarrollo-de-negocios-la-florida/">
+            <img src="https://www.sercotec.cl/centros-de-negocios/wp-content/uploads/sites/4/2020/09/metropolitana-laflorida-cdn-logo.png"
+                alt="Logo Sercotec" style="display: block; margin: 0 auto;">
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for message in messages %}
+        <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        // Mostrar los mensajes flash después de 2 segundos
+        window.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                var flashMessages = document.querySelector('.flash-messages');
+                if (flashMessages.children.length > 0) {
+                    flashMessages.style.display = 'block';
+
+                    setTimeout(function () {
+                        flashMessages.style.opacity = '0';
+                        setTimeout(function () {
+                            flashMessages.style.display = 'none';
+                        }, 500); // Ocultar los mensajes después de 0.5 segundos
+                    }, 2000); // Mostrar los mensajes durante 2 segundos
+                }
+            }, 2000); // Retrasar la aparición del mensaje durante 2 segundos
+        });
+    </script>
+</body>
+
+</html>

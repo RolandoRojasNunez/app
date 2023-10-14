@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La Florida Emprende</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    .navbar-brand {
+      color: white !important;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background-image: url("/static/assets/imgs/la-florida-comuna2.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: top;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      margin-top: 70px;
+    }
+
+    h1 {
+      color: white;
+    }
+
+    .image-overlay {
+      position: fixed;
+      bottom: 2%;
+      /* Ajusta la distancia desde la parte inferior en porcentaje */
+      left: 2%;
+      /* Ajusta la distancia desde la izquierda en porcentaje */
+    }
+
+    .image-overlay img {
+      width: 80%;
+      /* Ajusta el ancho de la imagen en porcentaje */
+      height: auto;
+      /* La altura se ajustará proporcionalmente al ancho */
+    }
+
+    @media (max-width: 768px) {
+
+      /* Estilos específicos para dispositivos con un ancho de pantalla de hasta 768px */
+      .image-overlay {
+        bottom: 1%;
+        /* Ajusta la distancia desde la parte inferior en porcentaje */
+        left: 1%;
+        /* Ajusta la distancia desde la izquierda en porcentaje */
+      }
+
+      .image-overlay img {
+        width: 30%;
+        /* Ajusta el ancho de la imagen en porcentaje */
+        height: auto;
+        /* La altura se ajustará proporcionalmente al ancho */
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar bg-dark border-bottom border-bottom-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">La Florida Emprende</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 class="text-center mt-5">Encuentra tu Producto o Servicio</h1>
+
+    <div class="row justify-content-center mt-5">
+      <div class="col-lg-6">
+        <form role="search" class="d-flex mb-3" role="search" name="formSearch" method="POST"
+          action="{{ url_for('BuscarProveedor') }}" autocomplete="off">
+          <input class="form-control me-2" type="search" name="buscar" id="search" placeholder="Buscador de Proveedor"
+            aria-label="Buscador de Proveedores">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <select class="form-select me-2" name="categoria" aria-label="Categoría">
+            <option value="">Todas las categorías</option>
+            <option value="alimentos-bebidas">Alimentos y bebidas</option>
+            <option value="artesania-manualidades">Artesanía y manualidades</option>
+            <option value="asesoria">Asesoría</option>
+            <option value="belleza-cuidado-personal">Belleza y cuidado personal</option>
+            <option value="bienes-raices">Bienes raíces</option>
+            <option value="cobranza">Cobranza</option>
+            <option value="construccion-obras-menores">Construcción y obras menores</option>
+            <option value="decoracion">Decoración</option>
+            <option value="deporte-fitness">Deporte y fitness</option>
+            <option value="diseno-grafico">Diseño gráfico</option>
+            <option value="electricidad">Electricidad</option>
+            <option value="entretencion-eventos">Entretención y Eventos</option>
+            <option value="jardineria-flores">Jardinería y flores</option>
+            <option value="juguetes-juegos">Juguetes y juegos</option>
+            <option value="libros-musica">Libros y música</option>
+            <option value="limpieza">Limpieza</option>
+            <option value="mascotas">Mascotas</option>
+            <option value="mecanica">Mecánica</option>
+            <option value="reparacion-mantencion">Reparación y mantención</option>
+            <option value="restaurantes">Restaurantes</option>
+            <option value="ropa-accesorios">Ropa y accesorios</option>
+            <option value="salud-bienestar">Salud y Bienestar</option>
+            <option value="servicios-carpinteria">Servicios de Carpintería</option>
+            <option value="servicios-gasfiteria">Servicios de Gasfitería</option>
+            <option value="tecnologia">Tecnología</option>
+            <option value="telecomunicaciones">Telecomunicaciones</option>
+            <option value="transporte">Transporte</option>
+            <option value="viajes-turismo">Viajes y turismo</option>
+            <option value="vigilancia-seguridad">Vigilancia y seguridad</option>
+            <option value="otro">Otro</option>
+          </select>
+          <button class="btn btn-primary" type="submit">Buscar</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="RespBusq">
+    {% block body %}
+
+
+    {% endblock %}
+  </div>
+
+  <div class="image-overlay">
+    <a href="https://www.sercotec.cl/centros-de-negocios/centro-de-desarrollo-de-negocios-la-florida/">
+      <img
+        src="https://www.sercotec.cl/centros-de-negocios/wp-content/uploads/sites/4/2020/09/metropolitana-laflorida-cdn-logo.png"
+        alt="SERCOTEC">
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
